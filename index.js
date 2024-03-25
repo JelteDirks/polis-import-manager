@@ -2,8 +2,9 @@
 
 import yargs from "yargs/yargs"
 import { hideBin } from "yargs/helpers"
-import { clearTerm, validateDirectory } from "./src/util.js"
+import { KEYSTROKE, clearTerm, validateDirectory } from "./src/util.js"
 import chalk from "chalk"
+import { Buffer } from "node:buffer"
 
 (async () => {
 
@@ -42,9 +43,48 @@ async function main(internal) {
 
   const file = await searchFile(internal);
 
+  console.log(file);
+
   return -1;
 }
 
 async function searchFile(internal) {
-  return;
+  const obj = {
+    input: ""
+  };
+  let i = 0;
+  process.stdin.setRawMode(true);
+
+  return new Promise((resolve) => {
+    const onData = (data) => {
+      console.log(data, data.toString());
+
+      if (i > 10) {
+        process.exit();
+      }
+      i++;
+
+      if (Buffer.compare(data, KEYSTROKE.BACKSPACE) === 0) {
+        obj.input = obj.input.slice(0, -1);
+      } else if (Buffer.compare(data, KEYSTROKE.ETX) === 0) {
+        process.exit();
+      } else if (Buffer.compare(data, KEYSTROKE.ENTER) === 0) {
+        console.log("enter");
+        process.stdin.removeListener("data", onData);
+        resolve(obj.input);
+      } else if (Buffer.compare(data, KEYSTROKE.LEFT_ARROW) === 0) {
+        console.log("left arrow");
+      } else if (Buffer.compare(data, KEYSTROKE.RIGHT_ARROW) === 0) {
+        console.log("right arrow");
+      } else if (Buffer.compare(data, KEYSTROKE.UP_ARROW) === 0) {
+        console.log("up arrow");
+      } else if (Buffer.compare(data, KEYSTROKE.DOWN_ARROW) === 0) {
+        console.log("down arrow");
+      } else {
+        obj.input += data.toString();
+      }
+    };
+
+    process.stdin.on("data", onData);
+  });
 }

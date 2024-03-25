@@ -22,6 +22,14 @@ export const ESCAPE_SEQUENCE = {
 };
 
 export const KEYSTROKE = {
+  BACKSPACE: new Uint8Array([127]),
+  ETX: new Uint8Array([3]), /* End of text (CTRL-C) */
+  EOT: new Uint8Array([4]), /* End of transomission (CTRL-D) */
+  UP_ARROW: new Uint8Array([27, 91, 65]),
+  DOWN_ARROW: new Uint8Array([27, 91, 66]),
+  RIGHT_ARROW: new Uint8Array([27, 91, 67]),
+  LEFT_ARROW: new Uint8Array([27, 91, 68]),
+  ENTER: new Uint8Array([13]),
 };
 
 export function clearTerm() {
