@@ -16,3 +16,14 @@ export async function validateDirectory(dir) {
     console.error(err);
   }
 }
+
+export const ESCAPE_SEQUENCE = {
+  CLEAR_TERM: "\x1Bc"
+};
+
+export const KEYSTROKE = {
+};
+
+export function clearTerm() {
+  process.stdout.write(ESCAPE_SEQUENCE.CLEAR_TERM);
+}

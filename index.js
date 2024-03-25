@@ -2,7 +2,8 @@
 
 import yargs from "yargs/yargs"
 import { hideBin } from "yargs/helpers"
-import { validateDirectory } from "./src/util.js"
+import { clearTerm, validateDirectory } from "./src/util.js"
+import chalk from "chalk"
 
 (async () => {
 
@@ -19,6 +20,31 @@ import { validateDirectory } from "./src/util.js"
 
   const resolvedPath = await validateDirectory(argv.directory);
 
-  console.dir(resolvedPath);
+  let internal = {
+    resolvedPath: resolvedPath,
+    n: 0
+  };
+
+  while (1) {
+    internal.n = await main(internal);
+
+    if (internal.n < 0) {
+      break;
+    }
+  }
+
 })();
 
+async function main(internal) {
+  clearTerm();
+  process.stdout.write("Je bent in de volgende map aan het werken: " +
+    chalk.green(internal.resolvedPath) + "\n");
+
+  const file = await searchFile(internal);
+
+  return -1;
+}
+
+async function searchFile(internal) {
+  return;
+}
