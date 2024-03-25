@@ -32,10 +32,9 @@ import path from "node:path"
     internal.n = await main(internal);
 
     if (internal.n < 0) {
-      break;
+      process.exit();
     }
   }
-
 })();
 
 async function main(internal) {
@@ -51,48 +50,48 @@ async function main(internal) {
     jsonFiles
   });
 
-  const file = await searchFile(internal);
-
-  return -1;
+  const file = await searchFile(internal); /* internal.selected === file */
+  clearTerm();
+  console.log(file);
+  process.exit();
 }
 
 async function searchFile(internal) {
-  const paintObject = {
+  Object.assign(internal, {
     input: "",
-    resolvedPath: internal.resolvedPath,
-    jsonFiles: internal.jsonFiles,
     pointerIndex: 0,
     maxIndex: 0,
-  };
+  });
+
   process.stdin.setRawMode(true);
 
   return new Promise((resolve) => {
     const onData = (data) => {
       if (Buffer.compare(data, KEYSTROKE.BACKSPACE) === 0) {
-        paintObject.input = paintObject.input.slice(0, -1);
-        paintObject.pointerIndex = 0;
-        paintWindow(paintObject);
+        internal.input = internal.input.slice(0, -1);
+        internal.pointerIndex = 0;
+        paintWindow(internal);
       } else if (Buffer.compare(data, KEYSTROKE.ETX) === 0) {
         process.exit();
       } else if (Buffer.compare(data, KEYSTROKE.ENTER) === 0) {
-        console.log("enter");
         process.stdin.removeListener("data", onData);
-        resolve(paintObject);
+        process.stdin.setRawMode(false);
+        resolve(internal.selected);
       } else if (Buffer.compare(data, KEYSTROKE.LEFT_ARROW) === 0) {
         /* do something with this */
       } else if (Buffer.compare(data, KEYSTROKE.RIGHT_ARROW) === 0) {
         /* do something with this */
       } else if (Buffer.compare(data, KEYSTROKE.UP_ARROW) === 0) {
-        paintObject.pointerIndex = (paintObject.pointerIndex +
-          paintObject.maxIndex - 1) % paintObject.maxIndex;
-        paintWindow(paintObject);
+        internal.pointerIndex = (internal.pointerIndex +
+          internal.maxIndex - 1) % internal.maxIndex;
+        paintWindow(internal);
       } else if (Buffer.compare(data, KEYSTROKE.DOWN_ARROW) === 0) {
-        paintObject.pointerIndex = (paintObject.pointerIndex +
-          paintObject.maxIndex + 1) % paintObject.maxIndex;
-        paintWindow(paintObject);
+        internal.pointerIndex = (internal.pointerIndex +
+          internal.maxIndex + 1) % internal.maxIndex;
+        paintWindow(internal);
       } else {
-        paintObject.input += data.toString();
-        paintWindow(paintObject);
+        internal.input += data.toString();
+        paintWindow(internal);
       }
     };
 

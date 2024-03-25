@@ -66,28 +66,27 @@ export function moveCursor(row, column) {
     new Uint8Array([0x1B, 0x5B, ...rowAscii, 0x3B, ...colAscii, 0x48]));
 }
 
-export function paintWindow(paintObject) {
+export function paintWindow(internal) {
   process.stdout.write(ESCAPE_SEQUENCE.CLEAR_TERM);
   process.stdout.write("Je bent in de volgende map aan het werken: " +
-    chalk.green(paintObject.resolvedPath) + "\n");
-  process.stdout.write(paintObject.input + "\n");
+    chalk.green(internal.resolvedPath) + "\n");
+  process.stdout.write(internal.input + "\n");
 
   const maxRows = process.stdout.rows - 4;
-  const maxCols = process.stdout.columns - 1;
 
   let rows = maxRows;
   let j = 0;
 
-  for (let i = 0; i < paintObject.jsonFiles.length; i++) {
+  for (let i = 0; i < internal.jsonFiles.length; i++) {
     if (rows < 0) {
       break;
     }
 
-    let ref = paintObject.jsonFiles[i];
+    let ref = internal.jsonFiles[i];
 
-    if (ref.indexOf(paintObject.input) > -1) {
-      if (paintObject.pointerIndex === j) {
-        paintObject.selected = ref;
+    if (ref.indexOf(internal.input) > -1) {
+      if (internal.pointerIndex === j) {
+        internal.selected = ref;
         process.stdout.write(chalk.green(">" + ref + "\n"));
       } else {
         process.stdout.write(" " + ref + "\n");
@@ -101,7 +100,7 @@ export function paintWindow(paintObject) {
     process.stdout.write(chalk.red("Er zijn meer bestanden, maar die passen niet meer op het scherm..."));
   }
 
-  paintObject.maxIndex = Math.abs(maxRows - rows);
+  internal.maxIndex = Math.abs(maxRows - rows);
 
-  moveCursor(2, paintObject.input.length + 1);
+  moveCursor(2, internal.input.length + 1);
 }
