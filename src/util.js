@@ -72,7 +72,7 @@ export function paintWindow(paintObject) {
     chalk.green(paintObject.resolvedPath) + "\n");
   process.stdout.write(paintObject.input + "\n");
 
-  const maxRows = process.stdout.rows - 10;
+  const maxRows = process.stdout.rows - 4;
   const maxCols = process.stdout.columns - 1;
 
   let rows = maxRows;
@@ -80,7 +80,7 @@ export function paintWindow(paintObject) {
 
   for (let i = 0; i < paintObject.jsonFiles.length; i++) {
     if (rows < 0) {
-      continue;
+      break;
     }
 
     let ref = paintObject.jsonFiles[i];
@@ -95,6 +95,10 @@ export function paintWindow(paintObject) {
       --rows;
       ++j;
     }
+  }
+
+  if (rows < 0) {
+    process.stdout.write(chalk.red("Er zijn meer bestanden, maar die passen niet meer op het scherm..."));
   }
 
   paintObject.maxIndex = Math.abs(maxRows - rows);
