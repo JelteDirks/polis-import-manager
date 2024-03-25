@@ -5,6 +5,8 @@ import { hideBin } from "yargs/helpers"
 import { KEYSTROKE, clearTerm, paintWindow, validateDirectory } from "./src/util.js"
 import chalk from "chalk"
 import { Buffer } from "node:buffer"
+import { glob } from "glob";
+import path from "node:path"
 
 (async () => {
 
@@ -38,12 +40,18 @@ import { Buffer } from "node:buffer"
 
 async function main(internal) {
   clearTerm();
+
   process.stdout.write("Je bent in de volgende map aan het werken: " +
     chalk.green(internal.resolvedPath) + "\n");
 
-  const file = await searchFile(internal);
+  const globPattern = path.resolve(internal.resolvedPath, "**/*.json");
+  const jsonFiles = await glob(globPattern);
 
-  console.log(file);
+  Object.assign(internal, {
+    jsonFiles
+  });
+
+  const file = await searchFile(internal);
 
   return -1;
 }
@@ -51,7 +59,10 @@ async function main(internal) {
 async function searchFile(internal) {
   const paintObject = {
     input: "",
-    resolvedPath: internal.resolvedPath
+    resolvedPath: internal.resolvedPath,
+    jsonFiles: internal.jsonFiles,
+    pointerIndex: 0,
+    maxIndex: 0,
   };
   process.stdin.setRawMode(true);
 
@@ -59,6 +70,7 @@ async function searchFile(internal) {
     const onData = (data) => {
       if (Buffer.compare(data, KEYSTROKE.BACKSPACE) === 0) {
         paintObject.input = paintObject.input.slice(0, -1);
+        paintObject.pointerIndex = 0;
         paintWindow(paintObject);
       } else if (Buffer.compare(data, KEYSTROKE.ETX) === 0) {
         process.exit();
@@ -67,13 +79,17 @@ async function searchFile(internal) {
         process.stdin.removeListener("data", onData);
         resolve(paintObject);
       } else if (Buffer.compare(data, KEYSTROKE.LEFT_ARROW) === 0) {
-        console.log("left arrow");
+        /* do something with this */
       } else if (Buffer.compare(data, KEYSTROKE.RIGHT_ARROW) === 0) {
-        console.log("right arrow");
+        /* do something with this */
       } else if (Buffer.compare(data, KEYSTROKE.UP_ARROW) === 0) {
-        console.log("up arrow");
+        paintObject.pointerIndex = (paintObject.pointerIndex +
+          paintObject.maxIndex - 1) % paintObject.maxIndex;
+        paintWindow(paintObject);
       } else if (Buffer.compare(data, KEYSTROKE.DOWN_ARROW) === 0) {
-        console.log("down arrow");
+        paintObject.pointerIndex = (paintObject.pointerIndex +
+          paintObject.maxIndex + 1) % paintObject.maxIndex;
+        paintWindow(paintObject);
       } else {
         paintObject.input += data.toString();
         paintWindow(paintObject);
