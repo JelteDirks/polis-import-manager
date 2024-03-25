@@ -2,10 +2,11 @@
 
 import yargs from "yargs/yargs"
 import { hideBin } from "yargs/helpers"
-import { clearTerm, searchFile, validateDirectory } from "./src/util.js"
+import { clearTerm, readOne, searchFile, validateDirectory } from "./src/util.js"
 import chalk from "chalk"
 import { glob } from "glob";
 import path from "node:path"
+import fs from "node:fs";
 
 (async () => {
 
@@ -45,11 +46,40 @@ async function main(internal) {
   process.stdout.write("Je bent in de volgende map aan het werken: " +
     chalk.green(internal.resolvedPath) + "\n");
 
-  const file = await searchFile(internal); /* internal.selected === file */
-
+  await searchFile(internal); /* internal.selected === return value */
   clearTerm();
+  await processFile(internal);
 
-  console.log(file);
+  process.exit();
+}
+
+async function processFile(internal) {
+  const file = internal.selected;
+
+  process.stdout.write("Je bent het volgende bestand aan het bewerken: " +
+    chalk.green(file) + "\n");
+
+  process.stdout.write("Wat wil je doen met dit bestand?\n");
+  process.stdout.write("v: Voeg import toe\n");
+  process.stdout.write("d: Verwijder import\n");
+
+  analyzeFile(internal); /* async operation */
+
+  const keuze = await readOne();
+
+  if (keuze.trim() === "v") {
+  }
+
+  process.exit();
+}
+
+async function analyzeFile(internal) {
+  if (typeof internal.selected !== "string") {
+    console.error("need to select file");
+    process.exit();
+  }
+
+  const file = JSON.parse(fs.readFileSync(internal.selected));
 
   process.exit();
 }
