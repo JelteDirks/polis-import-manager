@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import chalk from "chalk";
+import { Buffer } from "node:buffer";
 
 export async function validateDirectory(dir) {
   let resolvedPath = path.resolve(dir);
@@ -103,4 +104,54 @@ export function paintWindow(internal) {
   internal.maxIndex = Math.abs(maxRows - rows);
 
   moveCursor(2, internal.input.length + 1);
+}
+
+export async function searchFile(internal) {
+  Object.assign(internal, {
+    input: "",
+    pointerIndex: 0,
+    maxIndex: 0,
+  });
+
+  if (typeof internal.jsonFiles === "undefined") {
+    console.error("jsonFiles is undefined");
+    process.exit();
+  }
+
+  process.stdin.setRawMode(true);
+
+  paintWindow(internal);
+
+  return new Promise((resolve) => {
+    const onData = (data) => {
+      if (Buffer.compare(data, KEYSTROKE.BACKSPACE) === 0) {
+        internal.input = internal.input.slice(0, -1);
+        internal.pointerIndex = 0;
+        paintWindow(internal);
+      } else if (Buffer.compare(data, KEYSTROKE.ETX) === 0) {
+        process.exit();
+      } else if (Buffer.compare(data, KEYSTROKE.ENTER) === 0) {
+        process.stdin.removeListener("data", onData);
+        process.stdin.setRawMode(false);
+        resolve(internal.selected);
+      } else if (Buffer.compare(data, KEYSTROKE.LEFT_ARROW) === 0) {
+        /* do something with this */
+      } else if (Buffer.compare(data, KEYSTROKE.RIGHT_ARROW) === 0) {
+        /* do something with this */
+      } else if (Buffer.compare(data, KEYSTROKE.UP_ARROW) === 0) {
+        internal.pointerIndex = (internal.pointerIndex +
+          internal.maxIndex - 1) % internal.maxIndex;
+        paintWindow(internal);
+      } else if (Buffer.compare(data, KEYSTROKE.DOWN_ARROW) === 0) {
+        internal.pointerIndex = (internal.pointerIndex +
+          internal.maxIndex + 1) % internal.maxIndex;
+        paintWindow(internal);
+      } else {
+        internal.input += data.toString();
+        paintWindow(internal);
+      }
+    };
+
+    process.stdin.on("data", onData);
+  });
 }
