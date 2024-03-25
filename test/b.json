@@ -1,0 +1,12 @@
+{
+  "regels": [
+    {
+      "omschrijving": "Omschrijving 1 in b.json",
+      "soort": "Standaard"
+    },
+    {
+      "omschrijving": "Omschrijving 2 in b.json",
+      "soort": "Standaard"
+    }
+  ]
+}

@@ -9,6 +9,7 @@ export async function validateDirectory(dir) {
     if (!stats.isDirectory()) {
       console.error("Het opgegeven pad is geen directory: " + resolvedPath);
       console.error(stats);
+      process.exit();
     }
     return resolvedPath;
   } catch (err) {
@@ -34,4 +35,9 @@ export const KEYSTROKE = {
 
 export function clearTerm() {
   process.stdout.write(ESCAPE_SEQUENCE.CLEAR_TERM);
+}
+
+export function paintWindow(paintObject) {
+  process.stdout.write(ESCAPE_SEQUENCE.CLEAR_TERM);
+  console.log(paintObject);
 }

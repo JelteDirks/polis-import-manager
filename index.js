@@ -2,7 +2,7 @@
 
 import yargs from "yargs/yargs"
 import { hideBin } from "yargs/helpers"
-import { KEYSTROKE, clearTerm, validateDirectory } from "./src/util.js"
+import { KEYSTROKE, clearTerm, paintWindow, validateDirectory } from "./src/util.js"
 import chalk from "chalk"
 import { Buffer } from "node:buffer"
 
@@ -49,29 +49,23 @@ async function main(internal) {
 }
 
 async function searchFile(internal) {
-  const obj = {
-    input: ""
+  const paintObject = {
+    input: "",
+    resolvedPath: internal.resolvedPath
   };
-  let i = 0;
   process.stdin.setRawMode(true);
 
   return new Promise((resolve) => {
     const onData = (data) => {
-      console.log(data, data.toString());
-
-      if (i > 10) {
-        process.exit();
-      }
-      i++;
-
       if (Buffer.compare(data, KEYSTROKE.BACKSPACE) === 0) {
-        obj.input = obj.input.slice(0, -1);
+        paintObject.input = paintObject.input.slice(0, -1);
+        paintWindow(paintObject);
       } else if (Buffer.compare(data, KEYSTROKE.ETX) === 0) {
         process.exit();
       } else if (Buffer.compare(data, KEYSTROKE.ENTER) === 0) {
         console.log("enter");
         process.stdin.removeListener("data", onData);
-        resolve(obj.input);
+        resolve(paintObject);
       } else if (Buffer.compare(data, KEYSTROKE.LEFT_ARROW) === 0) {
         console.log("left arrow");
       } else if (Buffer.compare(data, KEYSTROKE.RIGHT_ARROW) === 0) {
@@ -81,7 +75,8 @@ async function searchFile(internal) {
       } else if (Buffer.compare(data, KEYSTROKE.DOWN_ARROW) === 0) {
         console.log("down arrow");
       } else {
-        obj.input += data.toString();
+        paintObject.input += data.toString();
+        paintWindow(paintObject);
       }
     };
 

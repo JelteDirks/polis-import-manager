@@ -1,0 +1,16 @@
+{
+  "regels": [
+    {
+      "omschrijving": "Omschrijving 1 in C",
+      "soort": "Standaard"
+    },
+    {
+      "omschrijving": "Omschrijving 2 in C",
+      "soort": "Standaard"
+    },
+    {
+      "omschrijving": "Omschrijving 3 in C",
+      "soort": "Standaard"
+    }
+  ]
+}
