@@ -46,5 +46,8 @@ export class JsonWrapper {
     this.rows = rows;
   }
 
+  getRows() {
+    return this.rows;
+  }
 
 }

@@ -6,7 +6,6 @@ import { clearTerm, readOne, searchFile, validateDirectory } from "./src/util.js
 import chalk from "chalk"
 import { glob } from "glob";
 import path from "node:path"
-import fs from "node:fs";
 import { JsonWrapper } from "./src/JsonFile.js"
 
 (async () => {
@@ -64,14 +63,26 @@ async function processFile(internal) {
   process.stdout.write("i: Voeg import toe\n");
   process.stdout.write("d: Verwijder import\n");
 
-  const fileWrapper = new JsonWrapper(file, internal.originalDir);
-  const analysePromise = fileWrapper.analyse();
+  const wrappedJSON = new JsonWrapper(file, internal.originalDir);
+  const analysePromise = wrappedJSON.analyse();
 
   const keuze = await readOne();
 
   if (keuze.trim() === "i") {
     await analysePromise;
-    console.log("prom resolved");
+    await addImport(internal, wrappedJSON);
   }
 }
 
+async function addImport(internal, wrappedJSON) {
+  clearTerm();
+  let rowsRef = wrappedJSON.getRows();
+  for (let i = 0; i < rowsRef.length; i++) {
+    let ref = rowsRef[i];
+    process.stdout.write(Number(i).toString() + "> Ik wil hier iets toevoegen \n");
+    process.stdout.write(" " + ref + "\n");
+    if (i === rowsRef.length - 1) {
+      process.stdout.write(Number(i + 1).toString() + "> Ik wil hier iets toevoegen \n");
+    }
+  }
+}
