@@ -158,16 +158,28 @@ export async function searchFile(internal) {
 
 export async function readOne() {
   return new Promise((resolve) => {
-    process.stdin.setEncoding("utf8");
     process.stdin.setRawMode(true);
 
     const onData = async (data) => {
-      if (data === '\u0003') {
+      if (String(data) === '\u0003') {
         process.exit();
       }
       process.stdin.removeListener("data", onData);
       process.stdin.setRawMode(false);
-      resolve(data);
+      resolve(String(data));
+    };
+
+    process.stdin.on("data", onData);
+  });
+}
+
+export async function readLine() {
+  return new Promise((resolve) => {
+    process.stdin.setRawMode(false);
+
+    const onData = async (data) => {
+      process.stdin.removeListener("data", onData);
+      resolve(String(data));
     };
 
     process.stdin.on("data", onData);

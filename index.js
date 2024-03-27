@@ -2,7 +2,7 @@
 
 import yargs from "yargs/yargs"
 import { hideBin } from "yargs/helpers"
-import { clearTerm, readOne, searchFile, validateDirectory } from "./src/util.js"
+import { clearTerm, readLine, readOne, searchFile, validateDirectory } from "./src/util.js"
 import chalk from "chalk"
 import { glob } from "glob";
 import path from "node:path"
@@ -85,4 +85,16 @@ async function addImport(internal, wrappedJSON) {
       process.stdout.write(Number(i + 1).toString() + "> Ik wil hier iets toevoegen \n");
     }
   }
+
+  const index = (await readLine()).trim();
+
+  if (index === "") {
+    return await addImport(internal, wrappedJSON);
+  }
+
+  await searchFile(internal);
+
+  const toImport = internal.selected;
+
+  console.log(index, toImport);
 }
