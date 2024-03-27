@@ -7,6 +7,7 @@ import chalk from "chalk"
 import { glob } from "glob";
 import path from "node:path"
 import fs from "node:fs";
+import { JsonWrapper } from "./src/JsonFile.js"
 
 (async () => {
 
@@ -24,8 +25,8 @@ import fs from "node:fs";
   const resolvedPath = await validateDirectory(argv.directory);
 
   let internal = {
+    originalDir: argv.directory,
     resolvedPath: resolvedPath,
-    n: 0
   };
 
   const globPattern = path.resolve(internal.resolvedPath, "**/*.json");
@@ -36,7 +37,7 @@ import fs from "node:fs";
   });
 
   while (1) {
-    internal.n = await main(internal);
+    await main(internal);
   }
 })();
 
@@ -60,27 +61,17 @@ async function processFile(internal) {
     chalk.green(file) + "\n");
 
   process.stdout.write("Wat wil je doen met dit bestand?\n");
-  process.stdout.write("v: Voeg import toe\n");
+  process.stdout.write("i: Voeg import toe\n");
   process.stdout.write("d: Verwijder import\n");
 
-  analyzeFile(internal); /* async operation */
+  const fileWrapper = new JsonWrapper(file, internal.originalDir);
+  const analysePromise = fileWrapper.analyse();
 
   const keuze = await readOne();
 
-  if (keuze.trim() === "v") {
+  if (keuze.trim() === "i") {
+    await analysePromise;
+    console.log("prom resolved");
   }
-
-  process.exit();
-}
-
-async function analyzeFile(internal) {
-  if (typeof internal.selected !== "string") {
-    console.error("need to select file");
-    process.exit();
-  }
-
-  const file = JSON.parse(fs.readFileSync(internal.selected));
-
-  process.exit();
 }
 

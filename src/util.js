@@ -173,3 +173,10 @@ export async function readOne() {
     process.stdin.on("data", onData);
   });
 }
+
+/**
+ * @param {number} ms - amount of milliseconds to sleep for
+ */
+export async function sleep(ms) {
+  return new Promise(r => setTimeout(r, ms));
+}
